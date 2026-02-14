@@ -5,7 +5,7 @@ export default function AboutPage() {
         Thank you for trying this app
       </h1>
       <p className="mt-8 text-muted-foreground uppercase tracking-[0.2em] text-sm font-bold">
-        Crafted with ❤️
+        Crafted with ❤️ by Nisham
       </p>
     </div>
   );
