@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { orderStore } from '@/lib/store';
-import { Order } from '@/types';
+import { Order, CartItem } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import { getSession } from '@/lib/auth';
 import { orderSchema } from '@/lib/validations';
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
     const { items, deliveryDetails } = validation.data;
 
-    const subtotal = items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
+    const subtotal = items.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
     const total = subtotal + 5; // Adding delivery fee
 
     const newOrder: Order = {

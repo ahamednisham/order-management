@@ -1,10 +1,20 @@
 import { db } from './db';
 import { orders } from './db/schema';
-import { Order, OrderStatus } from '../types';
+import { Order, OrderStatus, CartItem, DeliveryDetails } from '../types';
 import { eq } from 'drizzle-orm';
 
+interface DBOrder {
+  id: string;
+  userId: string | null;
+  items: unknown;
+  total: string | number;
+  status: string;
+  deliveryDetails: unknown;
+  createdAt: Date;
+}
+
 class OrderStore {
-  private getUpdatedOrder(order: any): { updatedOrder: Order; hasChanged: boolean } {
+  private getUpdatedOrder(order: DBOrder): { updatedOrder: Order; hasChanged: boolean } {
     // Ensure numeric values are numbers
     const total = typeof order.total === 'string' ? parseFloat(order.total) : order.total;
     
@@ -28,29 +38,40 @@ class OrderStore {
       'Delivered': 3,
     };
 
+    const baseOrder: Order = {
+      id: order.id,
+      userId: order.userId || undefined,
+      items: order.items as CartItem[],
+      total,
+      status: order.status as OrderStatus,
+      deliveryDetails: order.deliveryDetails as DeliveryDetails,
+      createdAt: order.createdAt.toISOString()
+    };
+
     if (statusPriority[currentStatus] > statusPriority[order.status as OrderStatus]) {
       return { 
         updatedOrder: { 
-          ...(order as Order), 
-          total,
-          status: currentStatus 
+          ...baseOrder,
+          status: currentStatus,
         }, 
         hasChanged: true 
       };
     }
 
     return { 
-      updatedOrder: { 
-        ...(order as Order), 
-        total 
-      }, 
+      updatedOrder: baseOrder,
       hasChanged: false 
     };
   }
 
   async addOrder(order: Order) {
     await db.insert(orders).values({
-      ...order,
+      id: order.id,
+      userId: order.userId,
+      items: order.items,
+      total: order.total.toString(),
+      status: order.status,
+      deliveryDetails: order.deliveryDetails,
       createdAt: new Date(order.createdAt)
     });
   }

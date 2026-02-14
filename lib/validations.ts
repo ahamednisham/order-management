@@ -12,6 +12,14 @@ export const profileSchema = z.object({
 });
 
 export const orderSchema = z.object({
-  items: z.array(z.any()).min(1, 'Cart is empty'),
+  items: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    price: z.number(),
+    quantity: z.number().min(1),
+    description: z.string(),
+    image: z.string(),
+    category: z.string(),
+  })).min(1, 'Cart is empty'),
   deliveryDetails: profileSchema,
 });
