@@ -85,4 +85,21 @@ describe('OrderStore', () => {
     const retrieved = await orderStore.getOrder('test-delivered');
     expect(retrieved?.status).toBe('Delivered');
   });
+
+  it('should retrieve all orders and process updates', async () => {
+    const ordersList = [
+      { ...mockOrder, id: '1', createdAt: new Date() },
+      { ...mockOrder, id: '2', createdAt: new Date(Date.now() - 70000) }
+    ];
+
+    (db.select as jest.Mock).mockReturnValue({
+      from: jest.fn().mockResolvedValue(ordersList)
+    });
+
+    const results = await orderStore.getAllOrders();
+    expect(results.length).toBe(2);
+    expect(results[0].status).toBe('Order Received');
+    expect(results[1].status).toBe('Out for Delivery');
+    expect(db.update).toHaveBeenCalled();
+  });
 });
