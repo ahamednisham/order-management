@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
-    orderStore.addOrder(newOrder);
+    await orderStore.addOrder(newOrder);
 
     return NextResponse.json(newOrder, { status: 201 });
   } catch (_error) {
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   const session = await getSession();
-  const allOrders = orderStore.getAllOrders();
+  const allOrders = await orderStore.getAllOrders();
   
   if (session) {
     return NextResponse.json(allOrders.filter(o => o.userId === session.userId));

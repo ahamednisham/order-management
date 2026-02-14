@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Loader2, Save, LogOut } from 'lucide-react';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function ProfilePage() {
   const { isLoggedIn, logout } = useAuth();
@@ -64,12 +65,7 @@ export default function ProfilePage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24">
-        <Loader2 className="animate-spin text-primary mb-4" size={48} />
-        <p className="text-muted-foreground font-light italic">Loading your profile...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Retrieving your profile..." />;
   }
 
   return (

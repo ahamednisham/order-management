@@ -1,17 +1,33 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Menu from "@/components/Menu";
-import { MENU_ITEMS } from "@/lib/data";
+import { MenuItem } from "@/types";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 const CATEGORIES = ["All Items", "Starters", "Main Course", "Salads", "Desserts", "Beverages"];
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("All Items");
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/menu')
+      .then(res => res.json())
+      .then(data => {
+        setMenuItems(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch menu:', err);
+        setLoading(false);
+      });
+  }, []);
 
   const filteredItems = activeCategory === "All Items" 
-    ? MENU_ITEMS 
-    : MENU_ITEMS.filter(item => item.category === activeCategory);
+    ? menuItems 
+    : menuItems.filter(item => item.category === activeCategory);
 
   return (
     <div className="py-12 md:py-20">
@@ -43,7 +59,11 @@ export default function Home() {
             </button>
           ))}
         </div>
-        <Menu items={filteredItems} />
+        {loading ? (
+          <LoadingSpinner message="Curating our daily selection..." />
+        ) : (
+          <Menu items={filteredItems} />
+        )}
       </section>
     </div>
   );

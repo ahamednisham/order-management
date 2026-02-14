@@ -1,34 +1,13 @@
-import fs from 'fs';
-import path from 'path';
+import { db } from './db';
+import { orders } from './db/schema';
 import { Order, OrderStatus } from '../types';
-
-const ORDERS_FILE = path.join(process.cwd(), 'data', 'orders.json');
-
-// Ensure data directory exists
-if (!fs.existsSync(path.join(process.cwd(), 'data'))) {
-  fs.mkdirSync(path.join(process.cwd(), 'data'));
-}
-
-// Ensure orders file exists
-if (!fs.existsSync(ORDERS_FILE)) {
-  fs.writeFileSync(ORDERS_FILE, JSON.stringify([]));
-}
+import { eq } from 'drizzle-orm';
 
 class OrderStore {
-  private getOrdersFromFile(): Order[] {
-    try {
-      const data = fs.readFileSync(ORDERS_FILE, 'utf-8');
-      return JSON.parse(data);
-    } catch (error) {
-      return [];
-    }
-  }
-
-  private saveOrdersToFile(orders: Order[]) {
-    fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
-  }
-
-  private getUpdatedOrder(order: Order): { updatedOrder: Order; hasChanged: boolean } {
+  private getUpdatedOrder(order: any): { updatedOrder: Order; hasChanged: boolean } {
+    // Ensure numeric values are numbers
+    const total = typeof order.total === 'string' ? parseFloat(order.total) : order.total;
+    
     // Simulate status updates based on time passed
     const secondsPassed = (Date.now() - new Date(order.createdAt).getTime()) / 1000;
     
@@ -49,50 +28,65 @@ class OrderStore {
       'Delivered': 3,
     };
 
-    if (statusPriority[currentStatus] > statusPriority[order.status]) {
-      return { updatedOrder: { ...order, status: currentStatus }, hasChanged: true };
+    if (statusPriority[currentStatus] > statusPriority[order.status as OrderStatus]) {
+      return { 
+        updatedOrder: { 
+          ...(order as Order), 
+          total,
+          status: currentStatus 
+        }, 
+        hasChanged: true 
+      };
     }
 
-    return { updatedOrder: order, hasChanged: false };
+    return { 
+      updatedOrder: { 
+        ...(order as Order), 
+        total 
+      }, 
+      hasChanged: false 
+    };
   }
 
-  addOrder(order: Order) {
-    const orders = this.getOrdersFromFile();
-    orders.push(order);
-    this.saveOrdersToFile(orders);
+  async addOrder(order: Order) {
+    await db.insert(orders).values({
+      ...order,
+      createdAt: new Date(order.createdAt)
+    });
   }
 
-  getOrder(id: string): Order | undefined {
-    const orders = this.getOrdersFromFile();
-    const orderIndex = orders.findIndex(o => o.id === id);
+  async getOrder(id: string): Promise<Order | undefined> {
+    const result = await db.select().from(orders).where(eq(orders.id, id)).limit(1);
+    const order = result[0];
     
-    if (orderIndex === -1) return undefined;
+    if (!order) return undefined;
     
-    const { updatedOrder, hasChanged } = this.getUpdatedOrder(orders[orderIndex]);
+    const { updatedOrder, hasChanged } = this.getUpdatedOrder(order);
 
     if (hasChanged) {
-      orders[orderIndex] = updatedOrder;
-      this.saveOrdersToFile(orders);
+      await db.update(orders)
+        .set({ status: updatedOrder.status })
+        .where(eq(orders.id, id));
     }
 
     return updatedOrder;
   }
 
-  getAllOrders(): Order[] {
-    const orders = this.getOrdersFromFile();
-    let anyChanged = false;
-
-    const updatedOrders = orders.map(order => {
+  async getAllOrders(): Promise<Order[]> {
+    const allOrders = await db.select().from(orders);
+    
+    const results: Order[] = [];
+    for (const order of allOrders) {
       const { updatedOrder, hasChanged } = this.getUpdatedOrder(order);
-      if (hasChanged) anyChanged = true;
-      return updatedOrder;
-    });
-
-    if (anyChanged) {
-      this.saveOrdersToFile(updatedOrders);
+      if (hasChanged) {
+        await db.update(orders)
+          .set({ status: updatedOrder.status })
+          .where(eq(orders.id, order.id));
+      }
+      results.push(updatedOrder);
     }
 
-    return updatedOrders;
+    return results;
   }
 }
 

@@ -9,7 +9,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
-  const user = getUsers().find((u) => u.id === session.userId);
+  const user = (await getUsers()).find((u) => u.id === session.userId);
   if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
@@ -31,7 +31,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: validation.error.issues[0].message }, { status: 400 });
   }
 
-  const user = getUsers().find((u) => u.id === session.userId);
+  const user = (await getUsers()).find((u) => u.id === session.userId);
   
   if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -42,7 +42,7 @@ export async function PUT(request: Request) {
     ...validation.data,
   };
 
-  updateUser(updatedUser);
+  await updateUser(updatedUser);
 
   const { passwordHash, ...profile } = updatedUser;
   return NextResponse.json(profile);

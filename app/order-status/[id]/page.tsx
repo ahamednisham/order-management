@@ -6,6 +6,7 @@ import { Order } from '@/types';
 import OrderStatus from '@/components/OrderStatus';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function OrderStatusPage() {
   const { id } = useParams();
@@ -35,12 +36,7 @@ export default function OrderStatusPage() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24">
-        <Loader2 className="animate-spin text-primary mb-4" size={48} />
-        <p className="text-muted-foreground font-light">Locating your order details...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Locating your order details..." />;
   }
 
   if (error || !order) {

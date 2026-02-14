@@ -1,39 +1,24 @@
-import fs from 'fs';
-import path from 'path';
+import { db } from './db';
+import { users } from './db/schema';
 import { User } from '@/types';
+import { eq } from 'drizzle-orm';
 
-const USERS_FILE = path.join(process.cwd(), 'data', 'users.json');
-
-// Ensure data directory exists
-if (!fs.existsSync(path.join(process.cwd(), 'data'))) {
-  fs.mkdirSync(path.join(process.cwd(), 'data'));
-}
-
-// Ensure users file exists
-if (!fs.existsSync(USERS_FILE)) {
-  fs.writeFileSync(USERS_FILE, JSON.stringify([]));
-}
-
-export const getUsers = (): User[] => {
-  const data = fs.readFileSync(USERS_FILE, 'utf-8');
-  return JSON.parse(data);
+export const getUsers = async (): Promise<User[]> => {
+  const result = await db.select().from(users);
+  return result as User[];
 };
 
-export const saveUser = (user: User) => {
-  const users = getUsers();
-  users.push(user);
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+export const saveUser = async (user: User) => {
+  await db.insert(users).values(user);
 };
 
-export const findUserByEmail = (email: string): User | undefined => {
-  return getUsers().find((u) => u.email === email);
+export const findUserByEmail = async (email: string): Promise<User | undefined> => {
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return result[0] as User | undefined;
 };
 
-export const updateUser = (updatedUser: User) => {
-  const users = getUsers();
-  const index = users.findIndex((u) => u.id === updatedUser.id);
-  if (index !== -1) {
-    users[index] = updatedUser;
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-  }
+export const updateUser = async (updatedUser: User) => {
+  await db.update(users)
+    .set(updatedUser)
+    .where(eq(users.id, updatedUser.id));
 };

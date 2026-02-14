@@ -17,13 +17,13 @@ export async function POST(request: Request) {
 
     const { email, password } = validation.data;
 
-    if (findUserByEmail(email)) {
+    if (await findUserByEmail(email)) {
       return NextResponse.json({ error: 'User already exists' }, { status: 400 });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
     const newUser = { id: uuidv4(), email, passwordHash };
-    saveUser(newUser);
+    await saveUser(newUser);
 
     const token = await createToken({ userId: newUser.id, email: newUser.email });
     const cookieStore = await cookies();

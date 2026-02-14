@@ -18,6 +18,8 @@ A full-stack order management application for food delivery, built with Next.js.
 | Layer               | Technology                      |
 | ------------------- | ------------------------------- |
 | **Framework**       | Next.js (App Router)            |
+| **Database**        | PostgreSQL (Neon)               |
+| **ORM**             | Drizzle ORM                     |
 | **Language**        | TypeScript                      |
 | **Styling**         | Tailwind CSS                    |
 | **State**           | React Context API               |
@@ -33,12 +35,36 @@ A full-stack order management application for food delivery, built with Next.js.
 
 - Node.js 18+
 - Yarn
+- A PostgreSQL database (e.g., Neon)
 
 ### Installation
 
-```bash
-yarn install
-```
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   yarn install
+   ```
+3. Set up environment variables:
+   Create a `.env` file in the root directory and add:
+   ```env
+   POSTGRES_URL=your_neon_connection_string
+   JWT_SECRET=your_jwt_secret
+   ```
+
+### Database Setup
+
+1. Generate migrations:
+   ```bash
+   yarn db:generate
+   ```
+2. Push schema to database:
+   ```bash
+   yarn db:push
+   ```
+3. Seed the menu items:
+   ```bash
+   yarn db:seed
+   ```
 
 ### Running the App
 
@@ -88,12 +114,12 @@ yarn lint
 ├── context/              # React Context providers
 │   ├── AuthContext.tsx
 │   └── CartContext.tsx
-├── data/                 # Seed / static data (users.json)
+├── drizzle/              # Generated database migrations
 ├── lib/                  # Utilities & business logic
+│   ├── db/               # Drizzle schema and connection
 │   ├── auth.ts           # JWT helpers
-│   ├── data.ts           # Menu data
-│   ├── store.ts          # In-memory order store
-│   ├── users.ts          # User management
+│   ├── store.ts          # Order store (Drizzle)
+│   ├── users.ts          # User management (Drizzle)
 │   └── validations.ts    # Zod schemas
 ├── types/                # Shared TypeScript type definitions
 └── __tests__/            # Unit & component tests

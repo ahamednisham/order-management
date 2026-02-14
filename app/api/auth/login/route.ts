@@ -7,7 +7,7 @@ import { cookies } from 'next/headers';
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
-    const user = findUserByEmail(email);
+    const user = await findUserByEmail(email);
 
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });

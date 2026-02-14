@@ -5,6 +5,7 @@ import { Order } from '@/types';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { Loader2, Package } from 'lucide-react';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 import OrderHistoryItem from '@/components/OrderHistoryItem';
 
@@ -46,12 +47,7 @@ export default function PreviousOrdersPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24">
-        <Loader2 className="animate-spin text-primary mb-4" size={48} />
-        <p className="text-muted-foreground font-light italic">Fetching your history...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Fetching your history..." />;
   }
 
   return (

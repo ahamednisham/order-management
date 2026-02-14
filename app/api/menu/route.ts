@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
-import { MENU_ITEMS } from '@/lib/data';
+import { db } from '@/lib/db';
+import { menuItems } from '@/lib/db/schema';
 
 export async function GET() {
-  return NextResponse.json(MENU_ITEMS);
+  const items = await db.select().from(menuItems);
+  // Convert numeric price from string to number
+  const formattedItems = items.map(item => ({
+    ...item,
+    price: parseFloat(item.price)
+  }));
+  return NextResponse.json(formattedItems);
 }
