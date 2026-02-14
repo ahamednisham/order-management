@@ -1,6 +1,33 @@
 import { orderStore } from '../../lib/store';
 import { Order } from '../../types';
 
+// Mock the database
+jest.mock('../../lib/db', () => ({
+  db: {
+    insert: jest.fn().mockReturnValue({
+      values: jest.fn().mockResolvedValue({}),
+    }),
+    select: jest.fn().mockReturnValue({
+      from: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          limit: jest.fn().mockImplementation((id) => {
+            // Return different values based on the ID for testing
+            return Promise.resolve([]);
+          }),
+        }),
+        then: jest.fn(),
+      }),
+    }),
+    update: jest.fn().mockReturnValue({
+      set: jest.fn().mockReturnValue({
+        where: jest.fn().mockResolvedValue({}),
+      }),
+    }),
+  },
+}));
+
+import { db } from '../../lib/db';
+
 describe('OrderStore', () => {
   const mockOrder: Order = {
     id: 'test-1',
@@ -12,35 +39,49 @@ describe('OrderStore', () => {
   };
 
   beforeEach(() => {
-    // Reset store if possible or use a fresh instance if we had one
-    // For this simple store, we'll just add unique IDs
+    jest.clearAllMocks();
   });
 
-  it('should add and retrieve an order', async () => {
+  it('should add an order', async () => {
     await orderStore.addOrder(mockOrder);
-    const retrieved = await orderStore.getOrder(mockOrder.id);
-    expect(retrieved).toBeDefined();
-    expect(retrieved?.id).toBe(mockOrder.id);
+    expect(db.insert).toHaveBeenCalled();
   });
 
-  it('should simulate status updates based on time', async () => {
-    const oldOrder: Order = {
+  it('should retrieve and simulate status updates', async () => {
+    const oldOrder = {
       ...mockOrder,
       id: 'test-old',
-      createdAt: new Date(Date.now() - 70000).toISOString(), // 70s ago
+      createdAt: new Date(Date.now() - 70000) // 70s ago
     };
-    await orderStore.addOrder(oldOrder);
+
+    (db.select as jest.Mock).mockReturnValue({
+      from: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          limit: jest.fn().mockResolvedValue([oldOrder])
+        })
+      })
+    });
+
     const retrieved = await orderStore.getOrder('test-old');
     expect(retrieved?.status).toBe('Out for Delivery');
+    expect(db.update).toHaveBeenCalled();
   });
 
   it('should reach Delivered status after 120s', async () => {
-    const deliveredOrder: Order = {
+    const deliveredOrder = {
       ...mockOrder,
       id: 'test-delivered',
-      createdAt: new Date(Date.now() - 130000).toISOString(), // 130s ago
+      createdAt: new Date(Date.now() - 130000) // 130s ago
     };
-    await orderStore.addOrder(deliveredOrder);
+
+    (db.select as jest.Mock).mockReturnValue({
+      from: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          limit: jest.fn().mockResolvedValue([deliveredOrder])
+        })
+      })
+    });
+
     const retrieved = await orderStore.getOrder('test-delivered');
     expect(retrieved?.status).toBe('Delivered');
   });
