@@ -3,14 +3,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Truck, User, LogOut } from 'lucide-react';
+import { ShoppingBag, Truck, User } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
-import { OrderStatus } from '@/types';
 
 export default function Navbar() {
   const { totalItems, lastOrderId } = useCart();
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn } = useAuth();
   const pathname = usePathname();
   const [isOrderActive, setIsOrderActive] = useState(false);
 
@@ -83,7 +82,7 @@ export default function Navbar() {
                   className={`text-muted-foreground hover:text-foreground transition-colors p-1 ${pathname === '/profile' ? 'text-foreground' : ''}`}
                   title="Profile"
                 >
-                  <User size={20} strokeWidth={1.5} />
+                  <User size={24} strokeWidth={1.5} />
                 </Link>
               </div>
             ) : (
@@ -92,7 +91,7 @@ export default function Navbar() {
                 className={`text-muted-foreground hover:text-foreground transition-colors p-1 ${pathname === '/auth' ? 'text-foreground' : ''}`}
                 title="Login / Register"
               >
-                <User size={20} strokeWidth={1.5} />
+                <User size={24} strokeWidth={1.5} />
               </Link>
             )}
 
@@ -103,7 +102,7 @@ export default function Navbar() {
               </Link>
             )}
 
-            <Link href="/cart" className="relative group p-1 text-foreground hover:opacity-70 transition-opacity">
+            <Link href="/cart" className="relative group p-1 text-muted-foreground hover:text-foreground transition-opacity">
               <ShoppingBag size={24} strokeWidth={1.5} />
               {totalItems > 0 && (
                 <span className="bg-foreground text-background text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center absolute -top-1 -right-1">
