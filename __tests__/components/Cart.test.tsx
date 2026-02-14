@@ -9,6 +9,7 @@ const mockItem: MenuItem = {
   description: 'Yummy',
   price: 10,
   image: '/pizza.jpg',
+  category: 'Main Course',
 };
 
 const TestWrapper = () => {

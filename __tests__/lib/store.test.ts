@@ -4,7 +4,7 @@ import { Order } from '../../types';
 describe('OrderStore', () => {
   const mockOrder: Order = {
     id: 'test-1',
-    items: [{ id: '1', name: 'Pizza', price: 10, quantity: 1, description: '', image: '' }],
+    items: [{ id: '1', name: 'Pizza', price: 10, quantity: 1, description: '', image: '', category: 'Main Course' }],
     total: 10,
     status: 'Order Received',
     deliveryDetails: { name: 'John', address: '123 St', phone: '123' },
