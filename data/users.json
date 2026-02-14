@@ -1,0 +1,23 @@
+[
+  {
+    "id": "358cab9e-7300-4be1-a757-2ec88e8e508e",
+    "email": "ahamednisham@gmail.com",
+    "passwordHash": "$2b$10$zpQxoK0IddoKt5ff7Dbp4ul9eekHeLSy7/O3.h1HdkdDMLWVwlPx6",
+    "name": "Nisham Ahamed",
+    "phone": "9526478182",
+    "address": "Kalodi House, Swagathamadu"
+  },
+  {
+    "id": "d3526197-4959-475d-aee0-ab13176fe0c2",
+    "email": "bob@gmail.com",
+    "passwordHash": "$2b$10$5GmblRA9gVCt59T19VUCrOe3wQKqr/MrY5Mk8W2Y8ieMGj4388SiW"
+  },
+  {
+    "id": "3fc4cf52-a859-4eed-a0e6-e7c36a2ef38b",
+    "email": "tom@gmail.com",
+    "passwordHash": "$2b$10$NrUkRbIo8QDSqBbgYTqa1./kUZG8V3YNybjIgbGkIxdOPIdQj.au.",
+    "name": "Tom",
+    "phone": "+919526478182",
+    "address": "123 Metropolis"
+  }
+]
