@@ -1,7 +1,18 @@
+'use client';
+
+import { useState } from "react";
 import Menu from "@/components/Menu";
 import { MENU_ITEMS } from "@/lib/data";
 
+const CATEGORIES = ["All Items", "Starters", "Main Course", "Salads", "Desserts", "Beverages"];
+
 export default function Home() {
+  const [activeCategory, setActiveCategory] = useState("All Items");
+
+  const filteredItems = activeCategory === "All Items" 
+    ? MENU_ITEMS 
+    : MENU_ITEMS.filter(item => item.category === activeCategory);
+
   return (
     <div className="py-12 md:py-20">
       <section className="mb-16 md:mb-24 text-left max-w-4xl">
@@ -18,14 +29,21 @@ export default function Home() {
       
       <section>
         <div className="flex gap-8 overflow-x-auto pb-4 hide-scroll border-b border-border mb-16">
-          <button className="text-foreground font-medium text-sm pb-4 border-b-2 border-foreground whitespace-nowrap">All Items</button>
-          <button className="text-muted-foreground hover:text-foreground font-medium text-sm pb-4 whitespace-nowrap transition-colors">Starters</button>
-          <button className="text-muted-foreground hover:text-foreground font-medium text-sm pb-4 whitespace-nowrap transition-colors">Main Course</button>
-          <button className="text-muted-foreground hover:text-foreground font-medium text-sm pb-4 whitespace-nowrap transition-colors">Salads</button>
-          <button className="text-muted-foreground hover:text-foreground font-medium text-sm pb-4 whitespace-nowrap transition-colors">Desserts</button>
-          <button className="text-muted-foreground hover:text-foreground font-medium text-sm pb-4 whitespace-nowrap transition-colors">Beverages</button>
+          {CATEGORIES.map((category) => (
+            <button
+              key={category}
+              onClick={() => setActiveCategory(category)}
+              className={`font-medium text-sm pb-4 whitespace-nowrap transition-colors ${
+                activeCategory === category 
+                  ? "text-foreground border-b-2 border-foreground" 
+                  : "text-muted-foreground hover:text-foreground border-b-2 border-transparent"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
         </div>
-        <Menu items={MENU_ITEMS} />
+        <Menu items={filteredItems} />
       </section>
     </div>
   );
