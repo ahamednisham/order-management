@@ -86,16 +86,24 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-6">
+            {showTrackButton && (
+              <Link 
+                href={`/order-status/${lastOrderId}`} 
+                className="bg-accent text-accent-foreground rounded-full w-10 h-10 flex items-center justify-center hover:opacity-90 transition-opacity shadow-sm"
+                title="Track Active Order"
+              >
+                <Truck size={20} strokeWidth={2} />
+              </Link>
+            )}
+
             {isLoggedIn ? (
-              <div className="flex items-center gap-4">
-                <Link
-                  href="/profile"
-                  className={`text-muted-foreground hover:text-foreground transition-colors p-1 ${pathname === '/profile' ? 'text-foreground' : ''}`}
-                  title="Profile"
-                >
-                  <User size={24} strokeWidth={1.5} />
-                </Link>
-              </div>
+              <Link
+                href="/profile"
+                className={`text-muted-foreground hover:text-foreground transition-colors p-1 ${pathname === '/profile' ? 'text-foreground' : ''}`}
+                title="Profile"
+              >
+                <User size={24} strokeWidth={1.5} />
+              </Link>
             ) : (
               <Link
                 href="/auth"
@@ -103,13 +111,6 @@ export default function Navbar() {
                 title="Login / Register"
               >
                 <User size={24} strokeWidth={1.5} />
-              </Link>
-            )}
-
-            {showTrackButton && (
-              <Link href={`/order-status/${lastOrderId}`} className="flex items-center space-x-2 px-4 py-1.5 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 transition-all text-xs uppercase tracking-widest font-bold">
-                <Truck size={16} />
-                <span>Track Order</span>
               </Link>
             )}
 
