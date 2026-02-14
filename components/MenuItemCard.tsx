@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { MenuItem } from '@/types';
-import { useCart } from '@/context/CartContext';
-import { Plus, Minus } from 'lucide-react';
+import Image from "next/image";
+import { MenuItem } from "@/types";
+import { useCart } from "@/context/CartContext";
+import { Plus, Minus } from "lucide-react";
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -15,17 +16,21 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
 
   return (
     <div className="group flex flex-col">
-      <div className="bg-card rounded-sm aspect-[5/4] mb-6 overflow-hidden relative flex items-center justify-center border border-border/50">
+      <div className="bg-card rounded-sm aspect-5/4 mb-6 overflow-hidden relative flex items-center justify-center border border-border/50">
         {quantity > 0 && (
           <div className="absolute top-4 left-4 z-10 bg-foreground text-background text-[10px] font-bold h-6 w-6 rounded-full flex items-center justify-center shadow-sm">
             {quantity}
           </div>
         )}
-        <img
-          src={item.image}
-          alt={item.name}
-          className="w-4/5 h-4/5 object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-110"
-        />
+        <div className="relative w-4/5 h-4/5 transition-transform duration-700 group-hover:scale-110">
+          <Image
+            src={item.image}
+            alt={item.name}
+            fill
+            className="object-contain mix-blend-multiply"
+            sizes="(max-width: 768px) 50vw, 25vw"
+          />
+        </div>
         <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
           {quantity > 0 && (
             <button
@@ -51,7 +56,7 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
           </button>
         </div>
       </div>
-      
+
       <div className="flex justify-between items-start mb-2">
         <h3 className="text-xl font-serif font-medium text-foreground tracking-tight">
           {item.name}
@@ -60,7 +65,7 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
           ${item.price.toFixed(2)}
         </span>
       </div>
-      
+
       <p className="text-muted-foreground text-sm font-light leading-relaxed line-clamp-2">
         {item.description}
       </p>

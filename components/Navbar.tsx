@@ -11,34 +11,45 @@ export default function Navbar() {
   const { totalItems, lastOrderId } = useCart();
   const { isLoggedIn } = useAuth();
   const pathname = usePathname();
-  const [isOrderActive, setIsOrderActive] = useState(false);
+  const [orderActive, setOrderActive] = useState(false);
 
   useEffect(() => {
-    if (lastOrderId) {
-      const checkStatus = async () => {
-        try {
-          const res = await fetch(`/api/orders/${lastOrderId}`);
+    if (!lastOrderId) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const checkStatus = async () => {
+      try {
+        const res = await fetch(`/api/orders/${lastOrderId}`);
+        if (!cancelled) {
           if (res.ok) {
             const order = await res.json();
-            setIsOrderActive(order.status !== 'Delivered');
+            setOrderActive(order.status !== 'Delivered');
           } else {
-            setIsOrderActive(false);
+            setOrderActive(false);
           }
-        } catch (err) {
-          setIsOrderActive(false);
         }
-      };
+      } catch (err) {
+        if (!cancelled) {
+          setOrderActive(false);
+        }
+      }
+    };
 
-      checkStatus();
-      const interval = setInterval(checkStatus, 10000);
-      return () => clearInterval(interval);
-    } else {
-      setIsOrderActive(false);
-    }
+    checkStatus();
+    const interval = setInterval(checkStatus, 10000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, [lastOrderId]);
 
-  // Hide track button if we are on the order status page for that specific order
-  const showTrackButton = lastOrderId && isOrderActive && !pathname.includes(`/order-status/${lastOrderId}`);
+  const isOrderActive = !!lastOrderId && orderActive;
+
+  const showTrackButton =
+    isOrderActive && !pathname.includes(`/order-status/${lastOrderId}`);
 
   const navLinks = [
     { name: 'Menu', href: '/' },
@@ -62,7 +73,7 @@ export default function Navbar() {
                     key={link.name}
                     href={link.href}
                     className={`transition-colors cursor-pointer pb-0.5 ${
-                      isActive 
+                      isActive
                         ? 'text-foreground border-b-2 border-foreground' 
                         : 'hover:text-foreground border-b-2 border-transparent'
                     }`}
@@ -73,11 +84,11 @@ export default function Navbar() {
               })}
             </nav>
           </div>
-          
+
           <div className="flex items-center gap-6">
             {isLoggedIn ? (
               <div className="flex items-center gap-4">
-                <Link 
+                <Link
                   href="/profile"
                   className={`text-muted-foreground hover:text-foreground transition-colors p-1 ${pathname === '/profile' ? 'text-foreground' : ''}`}
                   title="Profile"
@@ -86,7 +97,7 @@ export default function Navbar() {
                 </Link>
               </div>
             ) : (
-              <Link 
+              <Link
                 href="/auth"
                 className={`text-muted-foreground hover:text-foreground transition-colors p-1 ${pathname === '/auth' ? 'text-foreground' : ''}`}
                 title="Login / Register"
