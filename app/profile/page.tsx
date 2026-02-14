@@ -57,7 +57,7 @@ export default function ProfilePage() {
       if (!res.ok) throw new Error('Failed to update profile');
       
       setMessage('Profile updated successfully');
-    } catch (err) {
+    } catch (_err) {
       setMessage('Error updating profile');
     } finally {
       setSaving(false);

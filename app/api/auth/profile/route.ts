@@ -14,7 +14,7 @@ export async function GET() {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  const { passwordHash, ...profile } = user;
+  const { passwordHash: _passwordHash, ...profile } = user;
   return NextResponse.json(profile);
 }
 
@@ -44,6 +44,6 @@ export async function PUT(request: Request) {
 
   await updateUser(updatedUser);
 
-  const { passwordHash, ...profile } = updatedUser;
+  const { passwordHash: _passwordHash, ...profile } = updatedUser;
   return NextResponse.json(profile);
 }

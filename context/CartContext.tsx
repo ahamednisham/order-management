@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { CartItem, MenuItem } from '../types';
 
 interface CartContextType {
@@ -19,14 +19,12 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [lastOrderId, setLastOrderIdState] = useState<string | null>(null);
-
-  useEffect(() => {
-    const storedId = localStorage.getItem('lastOrderId');
-    if (storedId) {
-      setLastOrderIdState(storedId);
+  const [lastOrderId, setLastOrderIdState] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("lastOrderId");
     }
-  }, []);
+    return null;
+  });
 
   const setLastOrderId = (id: string | null) => {
     setLastOrderIdState(id);
@@ -42,7 +40,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const existingItem = prevItems.find((item) => item.id === product.id);
       if (existingItem) {
         return prevItems.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
         );
       }
       return [...prevItems, { ...product, quantity: 1 }];

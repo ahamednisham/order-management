@@ -31,7 +31,7 @@ export default function Navbar() {
             setOrderActive(false);
           }
         }
-      } catch (err) {
+      } catch (_err) {
         if (!cancelled) {
           setOrderActive(false);
         }

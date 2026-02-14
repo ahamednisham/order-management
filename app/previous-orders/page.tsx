@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Order } from '@/types';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
-import { Loader2, Package } from 'lucide-react';
+import { Package } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 import OrderHistoryItem from '@/components/OrderHistoryItem';
@@ -12,23 +12,27 @@ import OrderHistoryItem from '@/components/OrderHistoryItem';
 export default function PreviousOrdersPage() {
   const { isLoggedIn } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(isLoggedIn);
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      fetch('/api/orders')
-        .then(res => res.json())
-        .then(data => {
-          setOrders(data.sort((a: Order, b: Order) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          ));
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    } else {
+  const fetchOrders = useCallback(async () => {
+    try {
+      const res = await fetch("/api/orders");
+      const data = await res.json();
+      setOrders(
+        data.sort(
+          (a: Order, b: Order) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        ),
+      );
+    } finally {
       setLoading(false);
     }
-  }, [isLoggedIn]);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    fetchOrders();
+  }, [isLoggedIn, fetchOrders]);
 
   if (!isLoggedIn) {
     return (
@@ -36,8 +40,8 @@ export default function PreviousOrdersPage() {
         <h1 className="text-4xl md:text-5xl font-serif text-foreground mb-8">
           Please login to view your orders
         </h1>
-        <Link 
-          href="/auth" 
+        <Link
+          href="/auth"
           className="bg-foreground text-background px-12 py-5 text-sm uppercase tracking-[0.3em] font-bold hover:opacity-90 transition-opacity"
         >
           Sign In

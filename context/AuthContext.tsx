@@ -27,13 +27,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoggedIn(false);
         setEmail(null);
       }
-    } catch (error) {
+    } catch (_error) {
       setIsLoggedIn(false);
     }
   };
 
   useEffect(() => {
-    checkAuth();
+    const fetchAuth = async () => {
+      try {
+        const res = await fetch("/api/auth/session");
+        if (res.ok) {
+          const data = await res.json();
+          setIsLoggedIn(true);
+          setEmail(data.email);
+        } else {
+          setIsLoggedIn(false);
+          setEmail(null);
+        }
+      } catch (_error) {
+        setIsLoggedIn(false);
+      }
+    };
+    fetchAuth();
   }, []);
 
   const login = (email: string) => {

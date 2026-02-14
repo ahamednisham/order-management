@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation';
 import { Order } from '@/types';
 import OrderStatus from '@/components/OrderStatus';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function OrderStatusPage() {
